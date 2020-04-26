@@ -1,0 +1,19 @@
+Fish = {
+    ID = -1,
+    Kind = "",
+    Num = 0,
+}
+
+function Fish:new(id, kind, num)
+    local o = {}
+    setmetatable(o,self);
+    self.__index = self;
+
+    o.ID = id;
+    o.Kind = kind;
+    o.Num = num;
+    
+    return o;
+end
+
+return Fish
