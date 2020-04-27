@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 1947211660
+CRC: 331127140
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 985c675f02e57bf97ee30522e9787e11
+    Hash: b25ebedefa997f286e5d58ecd8710f4f
   TypeTreeHash:
     serializedVersion: 2
     Hash: fe397485c3cec1106b49e9ff95e8f8a2
@@ -18,4 +18,4 @@ ClassTypes:
 Assets:
 - Assets/Prefabs/Capsule.mat
 Dependencies:
-- D:/HarewareTools/Assets/StreamingAssets/AssetBundles/10ecf942db5a91585d598fceef510bfeb343bd9a.ab
+- D:/XluaFrame/XluaFrame/Assets/StreamingAssets/AssetBundles/10ecf942db5a91585d598fceef510bfeb343bd9a.ab

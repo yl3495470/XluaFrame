@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3455027133
+CRC: 2344828733
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: ec27af1c2ca9104405fc937e8aa03f09
+    Hash: b3d524b9358a97c3c01b2d239489b8a3
   TypeTreeHash:
     serializedVersion: 2
     Hash: e28924f2c2393e9fe54ed730e71f47c7
@@ -26,4 +26,4 @@ ClassTypes:
 Assets:
 - Assets/Prefabs/Plane.prefab
 Dependencies:
-- D:/HarewareTools/Assets/StreamingAssets/AssetBundles/32c04e3e5d22ce244261a5b10216ab07ac90a79b.ab
+- D:/XluaFrame/XluaFrame/Assets/StreamingAssets/AssetBundles/32c04e3e5d22ce244261a5b10216ab07ac90a79b.ab

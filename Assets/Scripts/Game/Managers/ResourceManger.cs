@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using Tangzx.ABSystem;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Networking;
 
 public class ResourceManger : Singleton<ResourceManger>
 {
     public AssetBundleManager AbManager;
 
-    private const string urlParentPath = "ftp://154.8.204.224/AssetBundles/";    //"file:///D:/local/AssetBundles/";
+    private const string urlParentPath = "ftp://154.8.204.224/Frame/AssetBundles/";
 
     private string file_ParentSaveUrl;
     private Dictionary<string, Hash128> localHash = new Dictionary<string, Hash128>();
@@ -24,6 +25,24 @@ public class ResourceManger : Singleton<ResourceManger>
         AbManager.Init(() =>
         {
             InitComplete();
+        });
+    }
+
+    public static void LoadGameObject(string path, UnityAction<GameObject> onComplete)
+    {
+        AssetBundleLoader loader = ResourceManger.Instance.AbManager.Load(path, (a) =>
+        {
+            GameObject go = Instantiate(a.mainObject) as GameObject;
+            onComplete(go);
+        });
+    }
+
+    public static void LoadTextAsset(string path, UnityAction<TextAsset> onComplete)
+    {
+        AssetBundleLoader loader = ResourceManger.Instance.AbManager.Load(path, (a) =>
+        {
+            TextAsset text = a.mainObject as TextAsset;
+            onComplete(text);
         });
     }
 
@@ -84,23 +103,32 @@ public class ResourceManger : Singleton<ResourceManger>
 
                 for (int i = 0; i< names.Length; ++i)
                 {
-                    if(!manifest.GetAssetBundleHash(names[i]).Equals(localHash[names[i]]))
+                    if(!localHash.ContainsKey(names[i]) || !manifest.GetAssetBundleHash(names[i]).Equals(localHash[names[i]]))
                     {
-                        Debug.Log("出现不同的文件");
-                        Debug.Log("web:" + manifest.GetAssetBundleHash(names[i]) + ",local:" + localHash[names[i]]);
                         downLoadFiles.Enqueue(names[i]);
                     }
                 }
                 maxDownCount = downLoadFiles.Count;
-                StartCoroutine(DownAssetBundle());
+                ResourceManger.LoadGameObject("Assets.Resources.GUI.DownloadPanel.prefab", BeginLoadResource);
             }
         }
     }
 
-    IEnumerator DownAssetBundle()
+    public void BeginLoadResource(GameObject go)
+    {
+        go.transform.SetParent(GameObject.Find("UIRoot").transform);
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localScale = Vector3.one;
+
+        DownloadPanel downloadPanel = go.GetComponent<DownloadPanel>();
+        StartCoroutine(DownAssetBundle(downloadPanel));
+    }
+
+    IEnumerator DownAssetBundle(DownloadPanel panel)
     {
         if(downLoadFiles.Count == 0)
         {
+            GameObject.Destroy(panel.gameObject);
             StartCoroutine(UpdateMF());
             yield break;
         }
@@ -112,14 +140,16 @@ public class ResourceManger : Singleton<ResourceManger>
 
         using (UnityWebRequest request = UnityWebRequest.Get(url))
         {
-            yield return request.SendWebRequest();
+            request.SendWebRequest();
 
+            string info = "正在下载第" + (maxDownCount - downLoadFiles.Count) + "/" + maxDownCount + "个更新文件";
             while (!request.isDone)
             {
-                Debug.Log(maxDownCount - downLoadFiles.Count + "/" + maxDownCount + ":" + request.downloadProgress/ 100.0f);
+                panel.UpdateProcess(info, request.downloadProgress);
+                yield return null;
             }
             CreatFile(localPath, request.downloadHandler.data);
-            StartCoroutine(DownAssetBundle());
+            StartCoroutine(DownAssetBundle(panel));
         }
     }
 

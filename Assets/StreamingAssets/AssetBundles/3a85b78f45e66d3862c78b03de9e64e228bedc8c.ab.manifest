@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 3240549680
+CRC: 722900182
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 55dc9a6fe880671cc47963dabb44ea8f
+    Hash: 533d27d86d353fbd34d1f10dca666a0f
   TypeTreeHash:
     serializedVersion: 2
     Hash: e25fd90d003022357adb51549b92a99d
@@ -30,4 +30,4 @@ ClassTypes:
 Assets:
 - Assets/Prefabs/Cube.prefab
 Dependencies:
-- D:/HarewareTools/Assets/StreamingAssets/AssetBundles/782098d40ab0bb691b99a9d1965cfb0101cdc60e.ab
+- D:/XluaFrame/XluaFrame/Assets/StreamingAssets/AssetBundles/782098d40ab0bb691b99a9d1965cfb0101cdc60e.ab

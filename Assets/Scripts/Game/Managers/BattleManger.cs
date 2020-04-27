@@ -8,7 +8,6 @@ using Tangzx.ABSystem;
 
 public class BattleManger : Singleton<BattleManger>
 {
-    private Action _luaStart;
     private Action _luaUpdate;
     private Action _luaOnDestroy;
 
@@ -23,57 +22,39 @@ public class BattleManger : Singleton<BattleManger>
 
     public void Init()
     {
-        InitLua();
+        ResourceManger.LoadTextAsset("Assets.XLua.MyLua.Resources.GameManger.lua.txt", InitLua);
         Debug.Log("Create Battle");
     }
 
-    void Awake()
+    void InitLua(TextAsset luaStr)
     {
+        scriptEnv = luaEnv.NewTable();
 
-    }
+        // 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
+        LuaTable meta = luaEnv.NewTable();
+        meta.Set("__index", luaEnv.Global);
+        scriptEnv.SetMetaTable(meta);
+        meta.Dispose();
 
-    void InitLua()
-    {
-        Debug.Log("Time1:" + Time.time);
-        //异步加载，会有时间间隔，但是可以继续执行
-        AssetBundleLoader loader = ResourceManger.Instance.AbManager.Load("Assets.XLua.MyLua.Resources.GameManger.lua.txt", (a) =>
+        scriptEnv.Set("self", this);
+        
+        luaEnv.DoString(luaStr.text, "ABS", scriptEnv);
+
+        Action luaAwake = scriptEnv.Get<Action>("awake");
+        scriptEnv.Get("update", out _luaUpdate);
+        scriptEnv.Get("ondestroy", out _luaOnDestroy);
+
+        if (luaAwake != null)
         {
-            Debug.Log("Time2:" + Time.time);
-
-            scriptEnv = luaEnv.NewTable();
-
-            // 为每个脚本设置一个独立的环境，可一定程度上防止脚本间全局变量、函数冲突
-            LuaTable meta = luaEnv.NewTable();
-            meta.Set("__index", luaEnv.Global);
-            scriptEnv.SetMetaTable(meta);
-            meta.Dispose();
-
-            scriptEnv.Set("self", this);
-
-            TextAsset textAsset = Instantiate(a.mainObject) as TextAsset;//a.Instantiate();
-            luaEnv.DoString(textAsset.text, "ABS", scriptEnv);
-
-            Action luaAwake = scriptEnv.Get<Action>("awake");
-            scriptEnv.Get("start", out _luaStart);
-            scriptEnv.Get("update", out _luaUpdate);
-            scriptEnv.Get("ondestroy", out _luaOnDestroy);
-
-            if (luaAwake != null)
-            {
-                luaAwake();
-            }
-        });
-    }
-
-    void Start()
-    {
-        Debug.Log("Start once");
-        if (_luaStart != null)
-            _luaStart();
+            luaAwake();
+        }
     }
 
     void Update()
     {
+        if(Input.touchCount > 0)
+            Debug.Log(Input.GetTouch(0).position);
+
         if (_luaUpdate != null)
         {
             _luaUpdate();
@@ -93,7 +74,6 @@ public class BattleManger : Singleton<BattleManger>
         }
         _luaOnDestroy = null;
         _luaUpdate = null;
-        _luaStart = null;
         scriptEnv.Dispose();
     }
 }
